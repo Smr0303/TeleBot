@@ -26,16 +26,16 @@ bot.help((ctx) => {
   ctx.reply("Sawal poochle ek , jawab dedega . Jyada dimaag mt chala");
 });
 
-bot.command("sex", (ctx) =>
+bot.command("click", (ctx) =>
   ctx.reply(
-    "Kaam vgerah pr dhyaan dele bsdk .Din raat ladkibaazi choot chapata"
+    process.env.BAD_MESSAGE || ' '
   )
 );
 
 bot.telegram.setMyCommands([
   { command: "start", description: "Start the bot" },
   { command: "help", description: "Show help" },
-  { command: "sex", description: "Try it!!" },
+  { command: "click", description: "Try it!!" },
 ]);
 
 bot.on(message("sticker"), async (ctx) => {
