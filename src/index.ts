@@ -1,8 +1,12 @@
 import { Telegraf } from "telegraf";
 import { message } from "telegraf/filters";
 import * as dotenv from "dotenv";
+import express from "express";
 import Groq from "groq-sdk";
 dotenv.config();
+
+const app = express();
+const port = process.env.PORT || 8000;
 
 const token = process.env.BOT_TOKEN;
 const groqApiKey = process.env.GROQ_API_KEY;
@@ -13,8 +17,11 @@ if (!token) {
 }
 
 const groq = new Groq({ apiKey: groqApiKey });
-
 const bot = new Telegraf(token);
+
+app.get('/', (req, res) => {
+  res.status(200).send('OK');
+});
 
 bot.start((ctx) => {
   ctx.reply(
@@ -26,11 +33,7 @@ bot.help((ctx) => {
   ctx.reply("Sawal poochle ek , jawab dedega . Jyada dimaag mt chala");
 });
 
-bot.command("click", (ctx) =>
-  ctx.reply(
-    process.env.BAD_MESSAGE || ' '
-  )
-);
+bot.command("click", (ctx) => ctx.reply(process.env.BAD_MESSAGE || " "));
 
 bot.telegram.setMyCommands([
   { command: "start", description: "Start the bot" },
@@ -82,6 +85,10 @@ bot.on(message("text"), async (ctx) => {
 
 bot.launch(() => {
   console.log("I am up and  running 🏃‍♀️ ");
+});
+
+app.listen(port, () => {
+  console.log("I am running on ", port);
 });
 
 process.once("SIGINT", () => bot.stop("SIGINT"));
