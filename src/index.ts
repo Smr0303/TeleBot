@@ -19,8 +19,8 @@ if (!token) {
 const groq = new Groq({ apiKey: groqApiKey });
 const bot = new Telegraf(token);
 
-app.get('/', (req, res) => {
-  res.status(200).send('OK');
+app.get("/", (req, res) => {
+  res.status(200).send("OK");
 });
 
 bot.start((ctx) => {
@@ -41,6 +41,10 @@ bot.telegram.setMyCommands([
   { command: "click", description: "Try it!!" },
 ]);
 
+bot.telegram.getMe().then((botInfo) => {
+  bot.botInfo = botInfo;
+});
+
 bot.on(message("sticker"), async (ctx) => {
   try {
     await ctx.reply("👍");
@@ -51,8 +55,24 @@ bot.on(message("sticker"), async (ctx) => {
 });
 
 bot.on(message("text"), async (ctx) => {
-  const userMessage = ctx.message.text;
+  let userMessage = ctx.message.text;
+  const botUsername = bot.botInfo?.username;
+  const chatType = ctx.chat.type;
+
   const processingMessage = await ctx.reply("Thinking...");
+
+  if (chatType !== "private") {
+    const mentionsBot = botUsername && userMessage.includes(`@${botUsername}`);
+    const isCommand = userMessage.startsWith("/");
+
+    if (!mentionsBot && !isCommand) return;
+    
+    if (mentionsBot && !isCommand) {
+      userMessage = userMessage.replace(`@${botUsername}`, "").trim();
+    }
+  }
+
+  if (!userMessage.trim()) return;
 
   try {
     const response = await groq.chat.completions.create({
